@@ -140,9 +140,9 @@ def _check_admin(x_admin_key: str | None):
 def get_posts():
     with sqlite3.connect(DB) as con:
         rows = con.execute(
-            "SELECT date, kind, title, body FROM posts ORDER BY id DESC"
+            "SELECT id, date, kind, title, body FROM posts ORDER BY id DESC"
         ).fetchall()
-    return [{"date": d, "kind": k, "title": t, "body": b} for d, k, t, b in rows]
+    return [{"id": i, "date": d, "kind": k, "title": t, "body": b} for i, d, k, t, b in rows]
 
 
 @app.post("/api/blog")
@@ -153,6 +153,14 @@ def add_post(post: Post, x_admin_key: str | None = Header(None)):
             "INSERT INTO posts (date, kind, title, body) VALUES (?, ?, ?, ?)",
             (post.date.strip()[:40], post.kind.strip()[:20], post.title.strip()[:120], post.body.strip()[:2000]),
         )
+    return get_posts()
+
+
+@app.delete("/api/blog/{post_id}")
+def delete_post(post_id: int, x_admin_key: str | None = Header(None)):
+    _check_admin(x_admin_key)
+    with sqlite3.connect(DB) as con:
+        con.execute("DELETE FROM posts WHERE id = ?", (post_id,))
     return get_posts()
 
 

@@ -314,6 +314,23 @@ export default function App() {
     }
   };
 
+  const deletePost = async (id) => {
+    if (!window.confirm("Delete this post? This can't be undone.")) return;
+    const key = newPost.key || window.prompt("Admin key:") || "";
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}/api/blog/${id}`, {
+        method: "DELETE",
+        headers: { "X-Admin-Key": key },
+      });
+      if (res.status === 401) { window.alert("Wrong admin key."); return; }
+      if (!res.ok) { window.alert("Something went wrong — try again."); return; }
+      setDynamicPosts(await res.json());
+      setNewPost((p) => ({ ...p, key }));
+    } catch {
+      window.alert("Network error — try again.");
+    }
+  };
+
   const [nowPlaying, setNowPlaying] = useState(null); // track url currently playing, or null
   const audioRef = useRef(null);
   const toggleTrack = (url) => {
@@ -625,6 +642,16 @@ export default function App() {
                 {openK === i && (
                   <div className="fade" style={{ padding: "0 20px 16px 112px", fontSize: 13.5, color: T.gray, lineHeight: 1.65 }}>
                     {k.body}
+                    {k.id != null && (
+                      <div style={{ marginTop: 10 }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deletePost(k.id); }}
+                          style={{ ...mono, fontSize: 11, color: "#D23B2E", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        >
+                          🗑 Delete post
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
