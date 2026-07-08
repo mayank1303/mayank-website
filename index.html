@@ -11,10 +11,67 @@
     <meta property="og:title" content="Mayank Kumar — ML Engineer & Researcher" />
     <meta property="og:description" content="Production ML systems, agentic AI, and published research. Explore my projects, daily AI blog, or play the playground." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mayank-website-lovat.vercel.app/" />
+    <meta property="og:image" content="https://mayank-website-lovat.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mayank Kumar — ML Engineer & Researcher" />
+    <meta name="twitter:description" content="Production ML systems, agentic AI, and published research." />
+    <meta name="twitter:image" content="https://mayank-website-lovat.vercel.app/og-image.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root { --ink: #131A26; --paper: #F9FAFC; --mist: #E4E9F1; --gray: #5B6472; --card: #FFFFFF; --nav-bg: rgba(249,250,252,.92); }
+      [data-theme="dark"] { --ink: #EDF0F7; --paper: #0F1319; --mist: #262C3A; --gray: #9AA3B5; --card: #171C26; --nav-bg: rgba(15,19,25,.85); }
+      * { box-sizing: border-box; margin: 0; }
+      body { background: var(--paper); }
+      .lift { transition: transform .2s, box-shadow .2s; }
+      .lift:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(19,26,38,.08); }
+      @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3) rotate(-8deg)} }
+      .pet-bounce { animation: bounce .4s; }
+      @keyframes fadeIn { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+      .fade { animation: fadeIn .3s ease; }
+      input:focus { outline: none; }
+      @media (prefers-reduced-motion: reduce) { .lift, .fade, .pet-bounce { animation: none; transition: none; } }
+      @media print {
+        .no-print { display: none !important; }
+        body, .resume-print { background: #fff !important; color: #000 !important; }
+        a { color: #000 !important; text-decoration: none !important; }
+      }
+    </style>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Mayank Kumar",
+        "jobTitle": "Machine Learning Engineer",
+        "worksFor": { "@type": "Organization", "name": "C-DOT" },
+        "alumniOf": [
+          { "@type": "CollegeOrUniversity", "name": "IIT Jammu" },
+          { "@type": "CollegeOrUniversity", "name": "GEC Jhalawar" }
+        ],
+        "url": "https://mayank-website-lovat.vercel.app/",
+        "image": "https://mayank-website-lovat.vercel.app/og-image.png",
+        "email": "mailto:mayankrathor40@gmail.com",
+        "sameAs": [
+          "https://www.linkedin.com/in/mayankkumariitj",
+          "https://github.com/mayank1303"
+        ],
+        "description": "Machine Learning Engineer and researcher with 3+ years building real-time, low-latency ML systems: anomaly detection, agentic AI, and published research in adversarial ML."
+      }
+    </script>
   </head>
   <body>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("mk-theme");
+          var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

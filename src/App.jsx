@@ -42,8 +42,8 @@ const KNOWLEDGE = [
   },
 ];
 
-// ————— Design tokens —————
-const T = { ink: "#131A26", paper: "#F9FAFC", mist: "#E4E9F1", gray: "#5B6472" };
+// ————— Design tokens — CSS vars so dark mode needs no per-usage changes —————
+const T = { ink: "var(--ink)", paper: "var(--paper)", mist: "var(--mist)", gray: "var(--gray)", card: "var(--card)" };
 const MODES = {
   work: { accent: "#2547D0", label: "Work" },
   play: { accent: "#E8930C", label: "Play" },
@@ -76,6 +76,7 @@ const PROJECTS = [
     desc: "End-to-end agentic AI for real-time stock analysis: live NSE data, news retrieval, RAG over a 29,000+ chunk knowledge base, dual Claude + Ollama providers, multimodal chart analysis. Deployed to production.",
     link: CONFIG.GITHUB_STOCK_REPO,
     badge: "FEATURED",
+    caseStudy: "stock-agent",
   },
   {
     name: "Malware Scoring Pipeline",
@@ -99,6 +100,39 @@ const PROJECTS = [
     badge: "IIT MANDI",
   },
 ];
+
+// Case studies — drafted from facts already established elsewhere on this site
+// (PROJECTS, KNOWLEDGE blog posts, BIO_FOR_AI). Fill in real numbers/specifics
+// where marked — nothing here invents a metric that wasn't already stated.
+const CASE_STUDIES = {
+  "stock-agent": {
+    name: "Stock Agent",
+    tagline: "An agentic AI system for real-time stock analysis — live market data, retrieval over a 29,000+ chunk knowledge base, and a dual-LLM backend that costs ₹0/month to run.",
+    sections: [
+      {
+        h: "The problem",
+        b: "Day-to-day work is classical production ML — anomaly detection, malware scoring, the kind of systems that run quietly and never talk back. Stock Agent was built to get real, hands-on experience with the other half of modern ML: agentic systems that reason, call tools, and retrieve information on the fly, using the stock market as a domain with enough structure (live prices, news, filings) to make the retrieval and tool-use problems concrete rather than toy examples.",
+      },
+      {
+        h: "Architecture",
+        b: "FastAPI backend, React frontend. Two LLM providers wired in with live switching: the Claude API for quality, and a local Ollama model for zero-cost experimentation — the same dual-provider pattern later reused for this site's own chatbot/roast backend. MCP integration exposes the agent's tools directly inside Claude Desktop. Multimodal chart analysis lets the agent read an uploaded chart image, not just text.",
+      },
+      {
+        h: "Retrieval",
+        b: "RAG over 29,000+ chunks pulled from 20+ PDFs and EPUBs — financial filings, research material — using local sentence-transformers embeddings (no per-query embedding cost) and ChromaDB as an embedded vector store, with OCR fallback for scanned documents that don't have a clean text layer.",
+      },
+      {
+        h: "Deployment & cost",
+        b: "Backend runs in Docker on Render's free tier; frontend on Vercel; ChromaDB runs embedded alongside the backend, no separate database server. Total monthly infrastructure cost: ₹0 — the same free-tier stack now powers this personal site.",
+      },
+      {
+        h: "What it taught me",
+        b: "Evals matter from day one, not after the fact — measuring tool-routing accuracy before adding more tools kept the agent from becoming a pile of half-working capabilities. [Add: a specific failure mode you hit and fixed, and any latency/accuracy numbers you're comfortable sharing — those make this section land much harder than generalities.]",
+      },
+    ],
+    status: "Currently being redeployed to a new cloud setup — live demo link coming back soon.",
+  },
+};
 
 const PAPERS = [
   ["ICONIP 2022", "How does the Presence of Cognitive Biases in Phishing Emails Affect Human Decision-Making?"],
@@ -212,14 +246,14 @@ function SnakeGame({ accent, onGameOver }) {
   useEffect(() => { if (!alive) onGameOver(score); }, [alive]); // eslint-disable-line
 
   const cell = 100 / GRID;
-  const dpad = { ...mono, fontSize: 18, width: 46, height: 46, borderRadius: 12, border: `1.5px solid ${T.mist}`, background: "#fff", cursor: "pointer", fontWeight: 700 };
+  const dpad = { ...mono, fontSize: 18, width: 46, height: 46, borderRadius: 12, border: `1.5px solid ${T.mist}`, background: T.card, cursor: "pointer", fontWeight: 700 };
 
   return (
     <div style={{ textAlign: "center" }}>
       <div style={{ ...mono, fontSize: 12, fontWeight: 600, marginBottom: 8 }}>
         SCORE: <span style={{ color: accent }}>{score}</span> {!alive && " · GAME OVER"}
       </div>
-      <div style={{ position: "relative", width: "min(300px, 78vw)", aspectRatio: "1", margin: "0 auto", background: "#fff", border: `2px solid ${T.ink}`, borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ position: "relative", width: "min(300px, 78vw)", aspectRatio: "1", margin: "0 auto", background: T.card, border: `2px solid ${T.ink}`, borderRadius: 10, overflow: "hidden" }}>
         {snake.map(([x, y], i) => (
           <div key={i} style={{ position: "absolute", left: `${x * cell}%`, top: `${y * cell}%`, width: `${cell}%`, height: `${cell}%`, background: i === 0 ? T.ink : accent, borderRadius: 3 }} />
         ))}
@@ -232,11 +266,138 @@ function SnakeGame({ accent, onGameOver }) {
         )}
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, marginTop: 12 }}>
-        <button style={dpad} onClick={() => turn([0, -1])}>↑</button>
+        <button aria-label="Move up" style={dpad} onClick={() => turn([0, -1])}>↑</button>
         <div style={{ display: "flex", gap: 5 }}>
-          <button style={dpad} onClick={() => turn([-1, 0])}>←</button>
-          <button style={dpad} onClick={() => turn([0, 1])}>↓</button>
-          <button style={dpad} onClick={() => turn([1, 0])}>→</button>
+          <button aria-label="Move left" style={dpad} onClick={() => turn([-1, 0])}>←</button>
+          <button aria-label="Move down" style={dpad} onClick={() => turn([0, 1])}>↓</button>
+          <button aria-label="Move right" style={dpad} onClick={() => turn([1, 0])}>→</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ————— Routing (no library — just enough for /learn/<slug> and /resume) —————
+const slugify = (s) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+const KNOWN_MODES = ["work", "play", "learn", "hire"];
+
+function resolveRoute(pathname) {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) return { type: "home" };
+  if (parts[0] === "resume" && parts.length === 1) return { type: "resume" };
+  if (parts[0] === "learn" && parts.length === 2) return { type: "post", slug: parts[1] };
+  if (parts[0] === "projects" && parts.length === 2) return { type: "case-study", slug: parts[1] };
+  if (KNOWN_MODES.includes(parts[0]) && parts.length === 1) return { type: "mode", mode: parts[0] };
+  return { type: "notfound" };
+}
+
+function NotFoundPage() {
+  return (
+    <div style={{ background: T.paper, color: T.ink, minHeight: "100vh", fontFamily: "'Archivo', system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ textAlign: "center", maxWidth: 420 }}>
+        <div style={{ fontSize: 56, marginBottom: 6 }}>🐍</div>
+        <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 10 }}>404 — took a wrong turn</h1>
+        <p style={{ color: T.gray, fontSize: 15, lineHeight: 1.6, marginBottom: 22 }}>
+          That page doesn't exist. Maybe go play Snake instead?
+        </p>
+        <a href="/" style={{ ...mono, fontSize: 13, fontWeight: 700, padding: "12px 24px", borderRadius: 999, background: "#2547D0", color: "#fff", textDecoration: "none", display: "inline-block" }}>
+          ← Back home
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function CaseStudyPage({ slug }) {
+  const cs = CASE_STUDIES[slug];
+  if (!cs) return <NotFoundPage />;
+  const accent = MODES.work.accent;
+  return (
+    <div style={{ background: T.paper, color: T.ink, minHeight: "100vh", fontFamily: "'Archivo', system-ui, sans-serif" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "40px 24px 80px" }}>
+        <a href="/" style={{ fontSize: 13, color: T.gray, textDecoration: "none" }}>← Back to site</a>
+        <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginTop: 26 }}>CASE STUDY</p>
+        <h1 style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-0.02em", margin: "8px 0 14px" }}>{cs.name}</h1>
+        <p style={{ fontSize: 16, color: T.gray, lineHeight: 1.6, marginBottom: 34 }}>{cs.tagline}</p>
+
+        {cs.sections.map((s) => (
+          <div key={s.h} style={{ marginBottom: 26 }}>
+            <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{s.h}</p>
+            <p style={{ fontSize: 14, color: T.gray, lineHeight: 1.65 }}>{s.b}</p>
+          </div>
+        ))}
+
+        {cs.status && (
+          <div style={{ background: T.card, border: `1px solid ${T.mist}`, borderRadius: 12, padding: 16, marginTop: 30, fontSize: 13, color: T.gray }}>
+            🚧 {cs.status}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ResumePage() {
+  const accent = MODES.work.accent;
+  return (
+    <div className="resume-print" style={{ background: T.paper, color: T.ink, minHeight: "100vh", fontFamily: "'Archivo', system-ui, sans-serif" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 24px 80px" }}>
+        <div className="no-print" style={{ display: "flex", justifyContent: "space-between", marginBottom: 30 }}>
+          <a href="/" style={{ fontSize: 13, color: T.gray, textDecoration: "none" }}>← Back to site</a>
+          <a href={CONFIG.RESUME_PDF} download style={{ fontSize: 13, fontWeight: 700, color: accent, textDecoration: "none" }}>Download PDF ↓</a>
+        </div>
+
+        <h1 style={{ fontSize: 40, fontWeight: 900, letterSpacing: "-0.03em", marginBottom: 4 }}>{ME.name}</h1>
+        <p style={{ fontSize: 16, color: T.gray, marginBottom: 10 }}>{ME.title}</p>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", fontSize: 12.5, marginBottom: 30 }}>
+          <a href={`mailto:${ME.email}`} style={{ color: T.ink }}>{ME.email}</a>
+          {ME.links.filter((l) => l.l !== "Gmail").map((l) => (
+            <a key={l.l} href={l.u} target="_blank" rel="noreferrer" style={{ color: T.ink }}>{l.l}</a>
+          ))}
+        </div>
+
+        <p style={{ fontSize: 14.5, lineHeight: 1.65, color: T.gray, marginBottom: 34 }}>{ME.tagline}</p>
+
+        <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginBottom: 10 }}>SKILLS</p>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 30 }}>
+          {SKILLS.map((s) => (
+            <span key={s} style={{ ...mono, fontSize: 11, padding: "4px 10px", borderRadius: 999, background: T.mist, fontWeight: 600 }}>{s}</span>
+          ))}
+        </div>
+
+        <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginBottom: 10 }}>EXPERIENCE & EDUCATION</p>
+        <div style={{ marginBottom: 30 }}>
+          {TIMELINE.map(([when, what, detail]) => (
+            <div key={what} style={{ display: "flex", gap: 14, padding: "10px 0", borderTop: `1px solid ${T.mist}` }}>
+              <span style={{ ...mono, fontSize: 10.5, color: accent, fontWeight: 600, minWidth: 86, paddingTop: 2 }}>{when}</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>{what}</div>
+                <div style={{ fontSize: 12.5, color: T.gray, marginTop: 2 }}>{detail}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginBottom: 10 }}>PROJECTS</p>
+        <div style={{ marginBottom: 30 }}>
+          {PROJECTS.map((p) => (
+            <div key={p.name} style={{ padding: "10px 0", borderTop: `1px solid ${T.mist}` }}>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</div>
+              <div style={{ fontSize: 12.5, color: T.gray, marginTop: 2, lineHeight: 1.55 }}>{p.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginBottom: 10 }}>PUBLICATIONS</p>
+        <div>
+          {PAPERS.map(([venue, title]) => (
+            <div key={title} style={{ display: "flex", gap: 12, padding: "8px 0", borderTop: `1px solid ${T.mist}`, alignItems: "baseline" }}>
+              <span style={{ ...mono, fontSize: 10, color: accent, fontWeight: 600, minWidth: 88 }}>{venue}</span>
+              <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>{title}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -245,13 +406,48 @@ function SnakeGame({ accent, onGameOver }) {
 
 // ————— Main site —————
 export default function App() {
-  const [mode, setMode] = useState("work");
+  const [dark, setDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem("mk-theme");
+      if (saved) return saved === "dark";
+      return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
+    } catch { return false; }
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    try { localStorage.setItem("mk-theme", dark ? "dark" : "light"); } catch {}
+  }, [dark]);
+
+  const initialRoute = useRef(resolveRoute(window.location.pathname)).current;
+  const [mode, setMode] = useState(
+    initialRoute.type === "mode" ? initialRoute.mode : initialRoute.type === "post" ? "learn" : "work"
+  );
+  const [viewingSlug, setViewingSlug] = useState(initialRoute.type === "post" ? initialRoute.slug : null);
   const [tab, setTab] = useState("stock");
   const [palette, setPalette] = useState(false);
   const [skill, setSkill] = useState(null);
   const [pets, setPets] = useState(0);
   const [openK, setOpenK] = useState(null);
   const accent = MODES[mode].accent;
+
+  const goToMode = (m) => { setMode(m); setViewingSlug(null); };
+
+  useEffect(() => {
+    if (viewingSlug) return; // don't clobber a /learn/<slug> URL right after initial load
+    const path = mode === "work" ? "/" : `/${mode}`;
+    if (window.location.pathname !== path) window.history.pushState({}, "", path);
+  }, [mode, viewingSlug]);
+
+  useEffect(() => {
+    const onPop = () => {
+      const r = resolveRoute(window.location.pathname);
+      if (r.type === "post") { setMode("learn"); setViewingSlug(r.slug); }
+      else if (r.type === "mode") { setMode(r.mode); setViewingSlug(null); setOpenK(null); }
+      else { setMode("work"); setViewingSlug(null); setOpenK(null); }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
   const [playing, setPlaying] = useState(false);
   const [gameKey, setGameKey] = useState(0);
@@ -282,10 +478,56 @@ export default function App() {
   const [addPostError, setAddPostError] = useState("");
   const [addPostLoading, setAddPostLoading] = useState(false);
 
+  const [contact, setContact] = useState({ name: "", email: "", message: "", hp: "" });
+  const [contactStatus, setContactStatus] = useState(""); // "" | "sending" | "sent" | "error"
+
+  const submitContact = async () => {
+    if (!contact.name.trim() || !contact.email.trim() || !contact.message.trim()) {
+      setContactStatus("error");
+      return;
+    }
+    setContactStatus("sending");
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contact),
+      });
+      if (!res.ok) { setContactStatus("error"); return; }
+      setContactStatus("sent");
+      setContact({ name: "", email: "", message: "", hp: "" });
+    } catch {
+      setContactStatus("error");
+    }
+  };
+
   useEffect(() => {
     if (!CONFIG.API_BASE) return;
     fetch(`${CONFIG.API_BASE}/api/blog`).then((r) => r.json()).then(setDynamicPosts).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!viewingSlug) return;
+    const all = [...dynamicPosts, ...KNOWLEDGE];
+    const idx = all.findIndex((p) => slugify(p.title) === viewingSlug);
+    if (idx >= 0) {
+      setOpenK(idx);
+      setTimeout(() => document.getElementById(`post-${idx}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    }
+  }, [viewingSlug, dynamicPosts]);
+
+  const openPost = (idx, all) => {
+    if (openK === idx) {
+      setOpenK(null);
+      setViewingSlug(null);
+      window.history.pushState({}, "", "/learn");
+    } else {
+      setOpenK(idx);
+      const slug = slugify(all[idx].title);
+      setViewingSlug(slug);
+      window.history.pushState({}, "", `/learn/${slug}`);
+    }
+  };
 
   const submitPost = async () => {
     setAddPostError("");
@@ -405,72 +647,88 @@ export default function App() {
   };
 
   const commands = [
-    ["→ Projects", () => { setMode("work"); setTimeout(() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" }), 50); }],
-    ["→ Journey & resume", () => { setMode("work"); setTimeout(() => document.getElementById("resume")?.scrollIntoView({ behavior: "smooth" }), 50); }],
-    ["→ Publications", () => { setMode("work"); setTimeout(() => document.getElementById("papers")?.scrollIntoView({ behavior: "smooth" }), 50); }],
-    ["📚 Open the blog (Learn mode)", () => setMode("learn")],
-    ["⌘ Switch to Hire mode", () => setMode("hire")],
-    ["📈 Stock Agent (coming soon)", () => { setMode("play"); setTab("stock"); }],
-    ["🎮 Play Snake", () => { setMode("play"); setTab("games"); setPlaying(true); setGameKey(k => k + 1); }],
-    ["🔥 Roast me", () => { setMode("play"); setTab("roast"); }],
+    ["→ Projects", () => { goToMode("work"); setTimeout(() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" }), 50); }],
+    ["→ Journey & resume", () => { goToMode("work"); setTimeout(() => document.getElementById("resume")?.scrollIntoView({ behavior: "smooth" }), 50); }],
+    ["→ Publications", () => { goToMode("work"); setTimeout(() => document.getElementById("papers")?.scrollIntoView({ behavior: "smooth" }), 50); }],
+    ["📚 Open the blog (Learn mode)", () => goToMode("learn")],
+    ["⌘ Switch to Hire mode", () => goToMode("hire")],
+    ["📈 Stock Agent (coming soon)", () => { goToMode("play"); setTab("stock"); }],
+    ["🎮 Play Snake", () => { goToMode("play"); setTab("games"); setPlaying(true); setGameKey(k => k + 1); }],
+    ["🔥 Roast me", () => { goToMode("play"); setTab("roast"); }],
   ];
 
   const S = {
     label: { ...mono, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: accent, fontWeight: 600 },
-    card: { background: "#fff", border: `1px solid ${T.mist}`, borderRadius: 14, padding: 20 },
+    card: { background: T.card, border: `1px solid ${T.mist}`, borderRadius: 14, padding: 20 },
     btn: (filled, c = accent) => ({
       ...mono, fontSize: 12, padding: "8px 15px", borderRadius: 999, cursor: "pointer", fontWeight: 600,
-      border: `1.5px solid ${filled ? c : T.mist}`, background: filled ? c : "#fff", color: filled ? "#fff" : T.ink,
+      border: `1.5px solid ${filled ? c : T.mist}`, background: filled ? c : T.card, color: filled ? "#fff" : T.ink,
     }),
     wrap: { maxWidth: 960, margin: "0 auto", padding: "0 20px" },
   };
 
+  if (initialRoute.type === "resume") return <ResumePage />;
+  if (initialRoute.type === "case-study") return <CaseStudyPage slug={initialRoute.slug} />;
+  if (initialRoute.type === "notfound") return <NotFoundPage />;
+
   return (
     <div style={{ background: T.paper, color: T.ink, minHeight: "100vh", fontFamily: "'Archivo', system-ui, sans-serif" }}>
-      <style>{`
-        * { box-sizing: border-box; margin: 0; }
-        body { background: ${T.paper}; }
-        .lift { transition: transform .2s, box-shadow .2s; }
-        .lift:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(19,26,38,.08); }
-        @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3) rotate(-8deg)} }
-        .pet-bounce { animation: bounce .4s; }
-        @keyframes fadeIn { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
-        .fade { animation: fadeIn .3s ease; }
-        input:focus { outline: none; }
-        @media (prefers-reduced-motion: reduce) { .lift, .fade, .pet-bounce { animation: none; transition: none; } }
-      `}</style>
+      <a
+        href="#main"
+        style={{
+          position: "absolute", left: 12, top: -60, zIndex: 100, background: accent, color: "#fff",
+          padding: "10px 16px", borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: "none", transition: "top .15s",
+        }}
+        onFocus={(e) => { e.currentTarget.style.top = "12px"; }}
+        onBlur={(e) => { e.currentTarget.style.top = "-60px"; }}
+      >
+        Skip to content
+      </a>
 
       {/* Command palette */}
       {palette && (
         <div onClick={() => setPalette(false)} style={{ position: "fixed", inset: 0, background: "rgba(19,26,38,.5)", zIndex: 50, display: "flex", justifyContent: "center", paddingTop: 90 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 16, width: "min(520px,92vw)", height: "fit-content", overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,.25)" }}>
+          <div role="dialog" aria-modal="true" aria-label="Quick actions" onClick={(e) => e.stopPropagation()} style={{ background: T.card, borderRadius: 16, width: "min(520px,92vw)", height: "fit-content", overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,.25)" }}>
             <div style={{ ...mono, fontSize: 13, padding: "14px 18px", borderBottom: `1px solid ${T.mist}`, color: T.gray }}>
               Quick actions <span style={{ float: "right", fontSize: 10.5 }}>ESC</span>
             </div>
-            {commands.map(([c, fn]) => (
-              <div key={c} onClick={() => { fn(); setPalette(false); }} style={{ padding: "12px 18px", fontSize: 14, cursor: "pointer", borderBottom: `1px solid ${T.paper}` }}>
+            {commands.map(([c, fn], i) => (
+              <button
+                key={c}
+                autoFocus={i === 0}
+                onClick={() => { fn(); setPalette(false); }}
+                style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", color: T.ink, padding: "12px 18px", fontSize: 14, cursor: "pointer", borderBottom: `1px solid ${T.paper}`, fontFamily: "inherit" }}
+              >
                 {c}
-              </div>
+              </button>
             ))}
           </div>
         </div>
       )}
 
       {/* Nav */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(249,250,252,.92)", backdropFilter: "blur(8px)", borderBottom: `1px solid ${T.mist}` }}>
+      <nav className="no-print" style={{ position: "sticky", top: 0, zIndex: 10, background: "var(--nav-bg)", backdropFilter: "blur(8px)", borderBottom: `1px solid ${T.mist}` }}>
         <div style={{ ...S.wrap, display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
           <span style={{ fontWeight: 900, fontSize: 18 }}>MK<span style={{ color: accent }}>.</span></span>
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            <button
+              aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+              title={dark ? "Switch to light mode" : "Switch to dark mode"}
+              style={S.btn(false)}
+              onClick={() => setDark((d) => !d)}
+            >
+              {dark ? "☀️" : "🌙"}
+            </button>
             <button style={S.btn(false)} onClick={() => setPalette(true)}>⌘K</button>
             {Object.keys(MODES).map((m) => (
-              <button key={m} onClick={() => setMode(m)} style={S.btn(mode === m, MODES[m].accent)}>{MODES[m].label}</button>
+              <button key={m} onClick={() => goToMode(m)} style={S.btn(mode === m, MODES[m].accent)}>{MODES[m].label}</button>
             ))}
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <header style={{ ...S.wrap, padding: mode === "hire" ? "44px 20px 36px" : "60px 20px 44px" }}>
+      <header id="main" style={{ ...S.wrap, padding: mode === "hire" ? "44px 20px 36px" : "60px 20px 44px" }}>
         <p style={S.label}>{mode === "hire" ? "Open to opportunities" : mode === "learn" ? "AI/ML Blog — one new topic daily" : mode === "play" ? "The Playground — have fun" : ME.title}</p>
         <h1 style={{ fontSize: "clamp(36px,8vw,64px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, margin: "12px 0 16px" }}>
           {ME.name}<span style={{ color: accent }}>.</span>
@@ -482,7 +740,57 @@ export default function App() {
               <a href={`mailto:${ME.email}`} style={{ ...S.btn(true), textDecoration: "none", display: "inline-block" }}>Email me ↗</a>
               <a href={ME.links[0].u} target="_blank" rel="noreferrer" style={{ ...S.btn(false), textDecoration: "none", display: "inline-block" }}>LinkedIn ↗</a>
               <a href={CONFIG.RESUME_PDF} download style={{ ...S.btn(false), textDecoration: "none", display: "inline-block" }}>Resume PDF ↓</a>
+              <a href="/resume" style={{ ...S.btn(false), textDecoration: "none", display: "inline-block" }}>View resume ↗</a>
             </div>
+
+            {CONFIG.API_BASE && (
+              <div style={{ ...S.card, marginTop: 28, maxWidth: 480 }}>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Or send a message directly</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <input
+                    placeholder="Your name"
+                    aria-label="Your name"
+                    value={contact.name}
+                    onChange={(e) => setContact((c) => ({ ...c, name: e.target.value }))}
+                    style={{ fontSize: 13, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}`, background: T.card, color: T.ink }}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Your email"
+                    aria-label="Your email"
+                    value={contact.email}
+                    onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))}
+                    style={{ fontSize: 13, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}`, background: T.card, color: T.ink }}
+                  />
+                  <textarea
+                    placeholder="Message"
+                    aria-label="Message"
+                    rows={4}
+                    value={contact.message}
+                    onChange={(e) => setContact((c) => ({ ...c, message: e.target.value }))}
+                    style={{ fontSize: 13, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}`, background: T.card, color: T.ink, fontFamily: "inherit", resize: "vertical" }}
+                  />
+                  {/* honeypot — hidden from real users, bots tend to fill every field */}
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={contact.hp}
+                    onChange={(e) => setContact((c) => ({ ...c, hp: e.target.value }))}
+                    style={{ position: "absolute", left: "-9999px", width: 1, height: 1 }}
+                    aria-hidden="true"
+                  />
+                  {contactStatus === "error" && <p style={{ fontSize: 12, color: "#D23B2E" }}>Please fill in all fields (or try again in a moment).</p>}
+                  {contactStatus === "sent" ? (
+                    <p style={{ fontSize: 13, fontWeight: 600, color: MODES.hire.accent }}>✓ Sent — thanks, I'll get back to you.</p>
+                  ) : (
+                    <button onClick={submitContact} disabled={contactStatus === "sending"} style={S.btn(true, MODES.hire.accent)}>
+                      {contactStatus === "sending" ? "Sending…" : "Send message"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>
@@ -537,6 +845,9 @@ export default function App() {
                   {p.skills.map((t) => (
                     <span key={t} style={{ ...mono, fontSize: 10, padding: "4px 9px", borderRadius: 999, background: t === skill ? accent : T.mist, color: t === skill ? "#fff" : T.ink, fontWeight: 600 }}>{t}</span>
                   ))}
+                  {p.caseStudy && (
+                    <a href={`/projects/${p.caseStudy}`} style={{ ...mono, fontSize: 10.5, color: accent, fontWeight: 600, marginLeft: p.link ? 0 : "auto", textDecoration: "none" }}>CASE STUDY →</a>
+                  )}
                   {p.link && (
                     <a href={p.link} target="_blank" rel="noreferrer" style={{ ...mono, fontSize: 10.5, color: accent, fontWeight: 600, marginLeft: "auto", textDecoration: "none" }}>VIEW ↗</a>
                   )}
@@ -630,11 +941,12 @@ export default function App() {
           )}
 
           <div style={{ ...S.card, marginTop: 14, padding: 0, overflow: "hidden" }}>
-            {[...dynamicPosts, ...KNOWLEDGE].map((k, i) => (
-              <div key={`${i}-${k.title}`} style={{ borderTop: i ? `1px solid ${T.mist}` : "none" }}>
-                <div
-                  onClick={() => setOpenK(openK === i ? null : i)}
-                  style={{ display: "flex", gap: 14, alignItems: "center", padding: "15px 20px", cursor: "pointer" }}
+            {(() => { const allPosts = [...dynamicPosts, ...KNOWLEDGE]; return allPosts.map((k, i) => (
+              <div key={`${i}-${k.title}`} id={`post-${i}`} style={{ borderTop: i ? `1px solid ${T.mist}` : "none" }}>
+                <a
+                  href={`/learn/${slugify(k.title)}`}
+                  onClick={(e) => { e.preventDefault(); openPost(i, allPosts); }}
+                  style={{ display: "flex", gap: 14, alignItems: "center", padding: "15px 20px", cursor: "pointer", textDecoration: "none", color: "inherit" }}
                 >
                   <div style={{ minWidth: 78 }}>
                     <div style={{ ...mono, fontSize: 9.5, color: accent, fontWeight: 600 }}>{k.kind}</div>
@@ -645,7 +957,7 @@ export default function App() {
                     {k.title}
                   </span>
                   <span style={{ color: T.gray, transform: openK === i ? "rotate(90deg)" : "none", transition: "transform .2s" }}>→</span>
-                </div>
+                </a>
                 {openK === i && (
                   <div className="fade" style={{ padding: "0 20px 16px 112px", fontSize: 13.5, color: T.gray, lineHeight: 1.65 }}>
                     {k.body}
@@ -662,7 +974,7 @@ export default function App() {
                   </div>
                 )}
               </div>
-            ))}
+            )); })()}
           </div>
         </section>
       )}
@@ -844,23 +1156,24 @@ export default function App() {
       )}
 
       {/* Pet dog */}
-      <div
+      <button
+        aria-label={`Pet the dog (${pets} pets so far)`}
         onClick={(e) => {
           setPets(pets + 1);
           e.currentTarget.classList.remove("pet-bounce");
           void e.currentTarget.offsetWidth;
           e.currentTarget.classList.add("pet-bounce");
         }}
-        style={{ position: "fixed", bottom: 18, right: 18, cursor: "pointer", textAlign: "center", zIndex: 20, userSelect: "none" }}
+        style={{ position: "fixed", bottom: 18, right: 18, cursor: "pointer", textAlign: "center", zIndex: 20, userSelect: "none", background: "none", border: "none" }}
         title="Pet me!"
       >
         <div style={{ fontSize: 36, filter: "drop-shadow(0 4px 8px rgba(0,0,0,.15))" }}>{pets >= 10 ? "🐕‍🦺" : "🐕"}</div>
         {pets > 0 && (
-          <div style={{ ...mono, fontSize: 9.5, background: "#fff", border: `1px solid ${T.mist}`, borderRadius: 999, padding: "2px 8px", marginTop: 3, fontWeight: 600 }}>
+          <div style={{ ...mono, fontSize: 9.5, background: T.card, border: `1px solid ${T.mist}`, borderRadius: 999, padding: "2px 8px", marginTop: 3, fontWeight: 600 }}>
             ❤️ {pets}{pets >= 10 ? " BFF!" : ""}
           </div>
         )}
-      </div>
+      </button>
 
       {/* Footer */}
       <footer style={{ borderTop: `1px solid ${T.mist}`, padding: "26px 0 38px" }}>
