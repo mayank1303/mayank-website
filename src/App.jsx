@@ -108,11 +108,34 @@ const PAPERS = [
 ];
 
 const TIMELINE = [
-  ["2023 — Now", "Scientist-B (ML Engineer), C-DOT Delhi", "Real-time anomaly detection, UEBA, malware scoring at national scale"],
+  ["2023 — Now", "Scientist B (Machine Learning Engineer), C-DOT Delhi", "Real-time anomaly detection, UEBA, malware scoring at national scale"],
   ["2021 — 2023", "M.Tech CSE, IIT Jammu", "CGPA 8.77 · adversarial ML & federated learning research"],
   ["2022", "AI Research Intern, IIT Mandi", "Spoken language identification (National Language Translation Mission)"],
   ["2016 — 2020", "B.Tech (Hons.) CSE, GEC Jhalawar", "Percentage 71.76"],
 ];
+
+const MUSIC_BY_MOOD = {
+  Focus: [
+    ["Lofi Girl — Relaxing Study Music", "https://www.youtube.com/watch?v=NCPKD9IdkK8"],
+    ["Lofi Hip Hop Mix — beats to relax/study to", "https://www.youtube.com/watch?v=CFGLoQIhmow"],
+    ["Best of Lofi Hip Hop", "https://www.youtube.com/watch?v=n61ULEU7CO0"],
+  ],
+  Chill: [
+    ["Chill Vibes 2026 — Calm & Soft Acoustic", "https://www.youtube.com/watch?v=DG8gBgPS4Nw"],
+    ["Best Chill Vibes — Acoustic Playlist", "https://www.youtube.com/watch?v=hL3FRzp5Df0"],
+    ["Acoustic Chill Songs Playlist", "https://www.youtube.com/watch?v=g3cHBMY5b50"],
+  ],
+  Energy: [
+    ["Workout Music 2026 — Fitness Motivation Mix", "https://www.youtube.com/watch?v=GXZi1j4Pjss"],
+    ["High Energy Gym Music — Cardio & HIIT", "https://www.youtube.com/watch?v=mSvpl3n6Uj4"],
+    ["Best Workout Music — High Energy Mix", "https://www.youtube.com/watch?v=AVe0zjXq0_A"],
+  ],
+  "Late night": [
+    ["Late Night Jazz Ambience — Slow Piano", "https://www.youtube.com/watch?v=-60GX7vvYTI"],
+    ["Late Night Mood Jazz — Smooth Jazz", "https://www.youtube.com/watch?v=J_Ofheahj1A"],
+    ["Night Jazz — Ambient Study Jazz", "https://www.youtube.com/watch?v=PFj00Wygdrw"],
+  ],
+};
 
 const BIO_FOR_AI = `You are the AI assistant on Mayank Kumar's personal website. Answer questions about him concisely (2-4 sentences), in a friendly professional tone. Facts: Mayank Kumar is a Machine Learning Engineer (Scientist-B) at C-DOT Delhi since July 2023, with 3+ years experience in real-time low-latency ML systems: malware scoring with LightGBM on static PE/ELF analysis, UEBA anomaly detection (reduced false positives 90% using Isolation Forest), real-time pipelines with FastAPI/Docker/Kafka across 10,000+ endpoints. His flagship personal project is Stock Agent: an agentic AI system with live NSE market data, news retrieval, RAG over 29,000+ chunks (20+ PDFs/EPUBs, local embeddings, ChromaDB, OCR fallback), dual LLM providers (Claude API + Ollama) with live switching, MCP integration with Claude Desktop, multimodal chart analysis, FastAPI+React frontend deployed on Render/Vercel. Education: M.Tech CSE IIT Jammu (CGPA 8.77, 2021-23), B.Tech GEC Jhalawar. 4 published papers: phishing cognitive biases (ICONIP 2022), BATFL backdoor attacks in FL (SINCOF 2023), RAFT federated learning resilience (SINCOF 2023), Split NN robustness against data poisoning (IJCNN 2023). AI Research Intern at IIT Mandi 2022 (spoken language ID, X-vector, 96% accuracy). Skills: Python, R, C++, SQL, PyTorch, TensorFlow, LightGBM, scikit-learn, Claude API, Ollama, MCP, RAG, prompt engineering, FastAPI, Django, Flask, React, Docker, Kafka, PostgreSQL, OpenSearch, ChromaDB. Email: mayankrathor40@gmail.com. If asked something unrelated to Mayank, politely redirect to questions about him. Never make up facts not listed here.`;
 
@@ -313,7 +336,7 @@ export default function App() {
     ["→ Publications", () => { setMode("work"); setTimeout(() => document.getElementById("papers")?.scrollIntoView({ behavior: "smooth" }), 50); }],
     ["📚 Open the blog (Learn mode)", () => setMode("learn")],
     ["⌘ Switch to Hire mode", () => setMode("hire")],
-    ["📈 Stock Agent live demo", () => { setMode("play"); setTab("stock"); }],
+    ["📈 Stock Agent (coming soon)", () => { setMode("play"); setTab("stock"); }],
     ["🎮 Play Snake", () => { setMode("play"); setTab("games"); setPlaying(true); setGameKey(k => k + 1); }],
     ["🔥 Roast me", () => { setMode("play"); setTab("roast"); }],
   ];
@@ -393,7 +416,7 @@ export default function App() {
               {mode === "learn"
                 ? "Everything I'm learning about AI/ML — one short, practical post a day. From production ML at C-DOT to agentic AI experiments."
                 : mode === "play"
-                ? "You found the fun side. Try my Stock Agent live, play Snake, get roasted by AI, pick music for your mood, or chat with my AI. Don't forget to pet the dog. 🐕"
+                ? "You found the fun side. Play Snake, get roasted by AI, pick music for your mood, or chat with my AI. Stock Agent demo is coming soon. Don't forget to pet the dog. 🐕"
                 : ME.tagline}
             </p>
             {mode !== "play" && (
@@ -413,25 +436,6 @@ export default function App() {
           </>
         )}
       </header>
-
-      {/* Impact numbers */}
-      {(mode === "work" || mode === "hire") && (
-        <section style={{ ...S.wrap, paddingBottom: 44 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 10 }}>
-            {[
-              ["3+", "years in production ML"],
-              ["10,000+", "endpoints monitored"],
-              ["90%", "fewer false positives"],
-              ["4", "published papers"],
-            ].map(([n, l]) => (
-              <div key={l} style={{ ...S.card, padding: "16px 14px", textAlign: "center" }}>
-                <div style={{ fontSize: 26, fontWeight: 900, color: accent, letterSpacing: "-0.02em" }}>{n}</div>
-                <div style={{ ...mono, fontSize: 9.5, color: T.gray, marginTop: 4, letterSpacing: ".05em" }}>{l.toUpperCase()}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Projects + journey + papers — Work & Hire */}
       {(mode === "work" || mode === "hire") && (<>
@@ -535,7 +539,7 @@ export default function App() {
         <section id="playground" style={{ ...S.wrap, paddingBottom: 60 }}>
           <p style={{ ...S.label, color: MODES.play.accent }}>Playground</p>
           <div style={{ display: "flex", gap: 8, margin: "14px 0", flexWrap: "wrap" }}>
-            {[["stock", "📈 Stock Agent LIVE"], ["games", "🎮 Snake"], ["roast", "🔥 Roast me"], ["explain", "🧠 Explain AI"], ["music", "🎧 Music"], ["chat", "💬 Ask my AI"]].map(([k, l]) => (
+            {[["stock", "📈 Stock Agent"], ["games", "🎮 Snake"], ["roast", "🔥 Roast me"], ["explain", "🧠 Explain AI"], ["music", "🎧 Music"], ["chat", "💬 Ask my AI"]].map(([k, l]) => (
               <button key={k} onClick={() => setTab(k)} style={S.btn(tab === k, MODES.play.accent)}>{l}</button>
             ))}
           </div>
@@ -544,7 +548,7 @@ export default function App() {
             {tab === "stock" && (
               <div style={{ textAlign: "center", padding: 12 }}>
                 <div style={{ fontSize: 40 }}>📈</div>
-                <p style={{ fontWeight: 800, fontSize: 18, margin: "10px 0 6px" }}>Stock Agent — Live Demo</p>
+                <p style={{ fontWeight: 800, fontSize: 18, margin: "10px 0 6px" }}>Stock Agent</p>
                 <p style={{ fontSize: 13.5, color: T.gray, maxWidth: 460, margin: "0 auto 8px", lineHeight: 1.6 }}>
                   My flagship project, running in production: ask it about live NSE stocks, upload chart images for analysis, or query my 29,000-chunk knowledge base. Dual Claude + Ollama brains.
                 </p>
@@ -553,10 +557,9 @@ export default function App() {
                     <span key={t} style={{ ...mono, fontSize: 10, padding: "4px 10px", borderRadius: 999, background: T.mist, fontWeight: 600 }}>{t}</span>
                   ))}
                 </div>
-                <a href={CONFIG.STOCK_AGENT_URL} target="_blank" rel="noreferrer"
-                  style={{ ...S.btn(true, MODES.play.accent), textDecoration: "none", display: "inline-block", fontSize: 13, padding: "12px 24px" }}>
-                  ▶ Open live demo ↗
-                </a>
+                <span style={{ ...mono, fontSize: 12, padding: "10px 20px", borderRadius: 999, background: T.mist, color: T.gray, fontWeight: 700, display: "inline-block" }}>
+                  🚧 Coming soon — redeploying
+                </span>
               </div>
             )}
 
@@ -640,15 +643,25 @@ export default function App() {
             )}
 
             {tab === "music" && (
-              <div style={{ textAlign: "center", padding: 16 }}>
-                <div style={{ fontSize: 34 }}>🎧</div>
-                <p style={{ fontWeight: 700, marginTop: 8 }}>Music by mood</p>
-                <p style={{ fontSize: 12.5, color: T.gray, marginBottom: 14 }}>Opens a curated playlist on YouTube</p>
-                <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-                  {[["Focus", "lofi+hip+hop+study"], ["Chill", "chill+acoustic+playlist"], ["Energy", "upbeat+workout+mix"], ["Late night", "late+night+ambient+jazz"]].map(([m, q]) => (
-                    <a key={m} href={`https://www.youtube.com/results?search_query=${q}`} target="_blank" rel="noreferrer" style={{ ...S.btn(false, MODES.play.accent), textDecoration: "none", display: "inline-block" }}>
-                      {m} ↗
-                    </a>
+              <div style={{ padding: 16 }}>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 34 }}>🎧</div>
+                  <p style={{ fontWeight: 700, marginTop: 8 }}>Music by mood</p>
+                  <p style={{ fontSize: 12.5, color: T.gray, marginBottom: 14 }}>A few picks per mood, straight to YouTube</p>
+                </div>
+                <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+                  {Object.entries(MUSIC_BY_MOOD).map(([mood, tracks]) => (
+                    <div key={mood} style={{ flex: "1 1 220px", maxWidth: 260 }}>
+                      <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: MODES.play.accent, marginBottom: 8 }}>{mood.toUpperCase()}</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        {tracks.map(([title, url]) => (
+                          <a key={url} href={url} target="_blank" rel="noreferrer"
+                            style={{ fontSize: 13, color: "inherit", textDecoration: "none", padding: "8px 10px", borderRadius: 10, background: T.paper, textAlign: "left" }}>
+                            ▶ {title}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
