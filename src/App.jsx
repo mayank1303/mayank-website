@@ -135,10 +135,10 @@ const CASE_STUDIES = {
 };
 
 const PAPERS = [
-  ["ICONIP 2022", "How does the Presence of Cognitive Biases in Phishing Emails Affect Human Decision-Making?"],
-  ["SINCOF 2023", "BATFL: Battling Backdoor Attacks in Federated Learning"],
-  ["SINCOF 2023", "RAFT: Evaluating Federated Learning Resilience Against Threats"],
-  ["IJCNN 2023", "On Robustness of Split Neural Networks Against Data Poisoning Attacks"],
+  ["ICONIP 2022", "How does the Presence of Cognitive Biases in Phishing Emails Affect Human Decision-Making?", "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=geSEwYEAAAAJ&citation_for_view=geSEwYEAAAAJ:u5HHmVD_uO8C"],
+  ["SINCOF 2023", "BATFL: Battling Backdoor Attacks in Federated Learning", "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=geSEwYEAAAAJ&citation_for_view=geSEwYEAAAAJ:d1gkVwhDpl0C"],
+  ["SINCOF 2023", "RAFT: Evaluating Federated Learning Resilience Against Threats", "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=geSEwYEAAAAJ&citation_for_view=geSEwYEAAAAJ:u-x6o8ySG0sC"],
+  ["IJCNN 2023", "On Robustness of Split Neural Networks Against Data Poisoning Attacks", "https://drive.google.com/file/d/125_BJbaW0SsrChur-K9LJgDV3HR2PIdg/view?usp=share_link"],
 ];
 
 const TIMELINE = [
@@ -392,10 +392,14 @@ function ResumePage() {
 
         <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginBottom: 10 }}>PUBLICATIONS</p>
         <div>
-          {PAPERS.map(([venue, title]) => (
+          {PAPERS.map(([venue, title, url]) => (
             <div key={title} style={{ display: "flex", gap: 12, padding: "8px 0", borderTop: `1px solid ${T.mist}`, alignItems: "baseline" }}>
               <span style={{ ...mono, fontSize: 10, color: accent, fontWeight: 600, minWidth: 88 }}>{venue}</span>
-              <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>{title}</span>
+              {url ? (
+                <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, lineHeight: 1.5, color: "inherit" }}>{title}</a>
+              ) : (
+                <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>{title}</span>
+              )}
             </div>
           ))}
         </div>
@@ -878,10 +882,14 @@ export default function App() {
           <span style={{ ...mono, fontSize: 11, fontWeight: 600, color: T.gray }}>PUBLICATIONS ({PAPERS.length})</span>
           <a href={CONFIG.SCHOLAR_URL} target="_blank" rel="noreferrer" style={{ ...S.btn(false), marginLeft: "auto", textDecoration: "none" }}>Google Scholar ↗</a>
         </div>
-        {PAPERS.map(([venue, title]) => (
+        {PAPERS.map(([venue, title, url]) => (
           <div key={title} style={{ display: "flex", gap: 12, padding: "11px 4px", borderBottom: `1px solid ${T.mist}`, alignItems: "baseline" }}>
             <span style={{ ...mono, fontSize: 10, color: accent, fontWeight: 600, minWidth: 88 }}>{venue}</span>
-            <span style={{ fontSize: 13.5, lineHeight: 1.5 }}>{title}</span>
+            {url ? (
+              <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 13.5, lineHeight: 1.5, color: "inherit" }}>{title}</a>
+            ) : (
+              <span style={{ fontSize: 13.5, lineHeight: 1.5 }}>{title}</span>
+            )}
           </div>
         ))}
       </section>
