@@ -8,3 +8,5 @@ dist/
 backend/__pycache__/
 backend/*.pyc
 backend/venv/
+.vercel
+.env*
