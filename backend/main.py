@@ -16,10 +16,11 @@ Deploy on Render free tier:
 """
 
 import os
+import secrets
 import sqlite3
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -80,6 +81,11 @@ def _init_db():
         con.execute(
             "CREATE TABLE IF NOT EXISTS scores (name TEXT, score INTEGER)"
         )
+        con.execute(
+            "CREATE TABLE IF NOT EXISTS posts ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+            "date TEXT, kind TEXT, title TEXT, body TEXT)"
+        )
 
 
 _init_db()
@@ -110,6 +116,44 @@ def post_score(s: Score):
             "(SELECT rowid FROM scores ORDER BY score DESC LIMIT 100)"
         )
     return get_leaderboard()
+
+
+# ————— Blog posts — added from the site by whoever holds ADMIN_KEY —————
+# Note: on Render's free tier, this sqlite file resets on redeploys/restarts.
+# Fine for a fun "add a note" feature — treat KNOWLEDGE in App.jsx as the
+# permanent record for anything you want to keep forever.
+
+class Post(BaseModel):
+    date: str
+    kind: str
+    title: str
+    body: str
+
+
+def _check_admin(x_admin_key: str | None):
+    admin_key = os.environ.get("ADMIN_KEY")
+    if not admin_key or not x_admin_key or not secrets.compare_digest(x_admin_key, admin_key):
+        raise HTTPException(status_code=401, detail="Invalid admin key")
+
+
+@app.get("/api/blog")
+def get_posts():
+    with sqlite3.connect(DB) as con:
+        rows = con.execute(
+            "SELECT date, kind, title, body FROM posts ORDER BY id DESC"
+        ).fetchall()
+    return [{"date": d, "kind": k, "title": t, "body": b} for d, k, t, b in rows]
+
+
+@app.post("/api/blog")
+def add_post(post: Post, x_admin_key: str | None = Header(None)):
+    _check_admin(x_admin_key)
+    with sqlite3.connect(DB) as con:
+        con.execute(
+            "INSERT INTO posts (date, kind, title, body) VALUES (?, ?, ?, ?)",
+            (post.date.strip()[:40], post.kind.strip()[:20], post.title.strip()[:120], post.body.strip()[:2000]),
+        )
+    return get_posts()
 
 
 @app.get("/")

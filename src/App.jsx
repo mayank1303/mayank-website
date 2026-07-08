@@ -114,26 +114,23 @@ const TIMELINE = [
   ["2016 — 2020", "B.Tech (Hons.) CSE, GEC Jhalawar", "Percentage 71.76"],
 ];
 
+// All tracks: Kevin MacLeod (incompetech.com), Creative Commons BY 4.0 — attribution below.
 const MUSIC_BY_MOOD = {
   Focus: [
-    ["Lofi Girl — Relaxing Study Music", "https://www.youtube.com/watch?v=NCPKD9IdkK8"],
-    ["Lofi Hip Hop Mix — beats to relax/study to", "https://www.youtube.com/watch?v=CFGLoQIhmow"],
-    ["Best of Lofi Hip Hop", "https://www.youtube.com/watch?v=n61ULEU7CO0"],
+    ["Deliberate Thought", "/music/focus-1.mp3"],
+    ["At Rest", "/music/focus-2.mp3"],
   ],
   Chill: [
-    ["Chill Vibes 2026 — Calm & Soft Acoustic", "https://www.youtube.com/watch?v=DG8gBgPS4Nw"],
-    ["Best Chill Vibes — Acoustic Playlist", "https://www.youtube.com/watch?v=hL3FRzp5Df0"],
-    ["Acoustic Chill Songs Playlist", "https://www.youtube.com/watch?v=g3cHBMY5b50"],
+    ["Carefree", "/music/chill-1.mp3"],
+    ["Local Forecast", "/music/chill-2.mp3"],
   ],
   Energy: [
-    ["Workout Music 2026 — Fitness Motivation Mix", "https://www.youtube.com/watch?v=GXZi1j4Pjss"],
-    ["High Energy Gym Music — Cardio & HIIT", "https://www.youtube.com/watch?v=mSvpl3n6Uj4"],
-    ["Best Workout Music — High Energy Mix", "https://www.youtube.com/watch?v=AVe0zjXq0_A"],
+    ["Sneaky Snitch", "/music/energy-1.mp3"],
+    ["Merry Go", "/music/energy-2.mp3"],
   ],
   "Late night": [
-    ["Late Night Jazz Ambience — Slow Piano", "https://www.youtube.com/watch?v=-60GX7vvYTI"],
-    ["Late Night Mood Jazz — Smooth Jazz", "https://www.youtube.com/watch?v=J_Ofheahj1A"],
-    ["Night Jazz — Ambient Study Jazz", "https://www.youtube.com/watch?v=PFj00Wygdrw"],
+    ["Airport Lounge", "/music/latenight-1.mp3"],
+    ["Avant Jazz", "/music/latenight-2.mp3"],
   ],
 };
 
@@ -278,6 +275,59 @@ export default function App() {
   const [input, setInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const chatEnd = useRef(null);
+
+  const [dynamicPosts, setDynamicPosts] = useState([]);
+  const [showAddPost, setShowAddPost] = useState(false);
+  const [newPost, setNewPost] = useState({ title: "", body: "", kind: "NOTES", key: "" });
+  const [addPostError, setAddPostError] = useState("");
+  const [addPostLoading, setAddPostLoading] = useState(false);
+
+  useEffect(() => {
+    if (!CONFIG.API_BASE) return;
+    fetch(`${CONFIG.API_BASE}/api/blog`).then((r) => r.json()).then(setDynamicPosts).catch(() => {});
+  }, []);
+
+  const submitPost = async () => {
+    setAddPostError("");
+    if (!newPost.title.trim() || !newPost.body.trim()) { setAddPostError("Title and body are required."); return; }
+    setAddPostLoading(true);
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}/api/blog`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Key": newPost.key },
+        body: JSON.stringify({
+          date: new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }),
+          kind: newPost.kind,
+          title: newPost.title,
+          body: newPost.body,
+        }),
+      });
+      if (res.status === 401) { setAddPostError("Wrong admin key."); return; }
+      if (!res.ok) { setAddPostError("Something went wrong — try again."); return; }
+      setDynamicPosts(await res.json());
+      setNewPost((p) => ({ ...p, title: "", body: "" }));
+      setShowAddPost(false);
+    } catch {
+      setAddPostError("Network error — try again.");
+    } finally {
+      setAddPostLoading(false);
+    }
+  };
+
+  const [nowPlaying, setNowPlaying] = useState(null); // track url currently playing, or null
+  const audioRef = useRef(null);
+  const toggleTrack = (url) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (nowPlaying === url) {
+      audio.pause();
+      setNowPlaying(null);
+    } else {
+      audio.src = url;
+      audio.play();
+      setNowPlaying(url);
+    }
+  };
 
   useEffect(() => {
     const h = (e) => {
@@ -430,7 +480,7 @@ export default function App() {
             )}
             {mode === "work" && (
               <p style={{ ...mono, fontSize: 12, color: T.gray, marginTop: 24 }}>
-                <span style={{ color: accent }}>●</span> Now: Scientist-B @ C-DOT · building Stock Agent
+                <span style={{ color: accent }}>●</span> Now: Scientist B (Machine Learning Engineer) @ C-DOT · building Stock Agent
               </p>
             )}
           </>
@@ -505,10 +555,59 @@ export default function App() {
       {/* Blog — Learn mode */}
       {mode === "learn" && (
         <section id="knowledge" style={{ ...S.wrap, paddingBottom: 48 }}>
-          <p style={S.label}>Latest posts — new topic every day</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+            <p style={S.label}>Latest posts — new topic every day</p>
+            <button
+              onClick={() => setShowAddPost((s) => !s)}
+              title="Add a post (admin key required)"
+              style={{ ...mono, fontSize: 16, fontWeight: 700, width: 28, height: 28, borderRadius: "50%", border: `1.5px solid ${T.mist}`, background: T.paper, color: accent, cursor: "pointer", lineHeight: "26px", padding: 0 }}
+            >
+              +
+            </button>
+          </div>
+
+          {showAddPost && (
+            <div className="fade" style={{ ...S.card, marginTop: 10, padding: 16 }}>
+              <p style={{ fontSize: 11.5, color: T.gray, marginBottom: 10 }}>Add a post — requires the admin key.</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <input
+                  type="password"
+                  placeholder="Admin key"
+                  value={newPost.key}
+                  onChange={(e) => setNewPost((p) => ({ ...p, key: e.target.value }))}
+                  style={{ ...mono, fontSize: 12, padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}` }}
+                />
+                <select
+                  value={newPost.kind}
+                  onChange={(e) => setNewPost((p) => ({ ...p, kind: e.target.value }))}
+                  style={{ ...mono, fontSize: 12, padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}` }}
+                >
+                  {["NOTES", "GUIDE", "ROADMAP", "STARTER KIT"].map((k) => <option key={k} value={k}>{k}</option>)}
+                </select>
+                <input
+                  placeholder="Title"
+                  value={newPost.title}
+                  onChange={(e) => setNewPost((p) => ({ ...p, title: e.target.value }))}
+                  style={{ fontSize: 13, padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}` }}
+                />
+                <textarea
+                  placeholder="Body"
+                  rows={4}
+                  value={newPost.body}
+                  onChange={(e) => setNewPost((p) => ({ ...p, body: e.target.value }))}
+                  style={{ fontSize: 13, padding: "8px 12px", borderRadius: 8, border: `1.5px solid ${T.mist}`, fontFamily: "inherit", resize: "vertical" }}
+                />
+                {addPostError && <p style={{ fontSize: 12, color: "#D23B2E" }}>{addPostError}</p>}
+                <button onClick={submitPost} disabled={addPostLoading} style={S.btn(true, accent)}>
+                  {addPostLoading ? "Posting…" : "Publish"}
+                </button>
+              </div>
+            </div>
+          )}
+
           <div style={{ ...S.card, marginTop: 14, padding: 0, overflow: "hidden" }}>
-            {KNOWLEDGE.map((k, i) => (
-              <div key={k.title} style={{ borderTop: i ? `1px solid ${T.mist}` : "none" }}>
+            {[...dynamicPosts, ...KNOWLEDGE].map((k, i) => (
+              <div key={`${i}-${k.title}`} style={{ borderTop: i ? `1px solid ${T.mist}` : "none" }}>
                 <div
                   onClick={() => setOpenK(openK === i ? null : i)}
                   style={{ display: "flex", gap: 14, alignItems: "center", padding: "15px 20px", cursor: "pointer" }}
@@ -647,23 +746,39 @@ export default function App() {
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: 34 }}>🎧</div>
                   <p style={{ fontWeight: 700, marginTop: 8 }}>Music by mood</p>
-                  <p style={{ fontSize: 12.5, color: T.gray, marginBottom: 14 }}>A few picks per mood, straight to YouTube</p>
+                  <p style={{ fontSize: 12.5, color: T.gray, marginBottom: 14 }}>Plays right here, no tab-out</p>
                 </div>
+                <audio
+                  ref={audioRef}
+                  onEnded={() => setNowPlaying(null)}
+                  style={{ display: "none" }}
+                />
                 <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
                   {Object.entries(MUSIC_BY_MOOD).map(([mood, tracks]) => (
                     <div key={mood} style={{ flex: "1 1 220px", maxWidth: 260 }}>
                       <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: MODES.play.accent, marginBottom: 8 }}>{mood.toUpperCase()}</p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                         {tracks.map(([title, url]) => (
-                          <a key={url} href={url} target="_blank" rel="noreferrer"
-                            style={{ fontSize: 13, color: "inherit", textDecoration: "none", padding: "8px 10px", borderRadius: 10, background: T.paper, textAlign: "left" }}>
-                            ▶ {title}
-                          </a>
+                          <button key={url} onClick={() => toggleTrack(url)}
+                            style={{
+                              ...mono, fontSize: 13, color: "inherit", textAlign: "left", cursor: "pointer",
+                              padding: "8px 10px", borderRadius: 10, border: "none",
+                              background: nowPlaying === url ? MODES.play.accent : T.paper,
+                              fontWeight: nowPlaying === url ? 700 : 400,
+                            }}>
+                            {nowPlaying === url ? "⏸" : "▶"} {title}
+                          </button>
                         ))}
                       </div>
                     </div>
                   ))}
                 </div>
+                <p style={{ fontSize: 10.5, color: T.gray, textAlign: "center", marginTop: 18 }}>
+                  Music by Kevin MacLeod (incompetech.com), licensed under{" "}
+                  <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
+                    CC BY 4.0
+                  </a>.
+                </p>
               </div>
             )}
 
