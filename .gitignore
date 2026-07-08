@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.claude/
+.env
+.env.local
+*.log
+.DS_Store
+backend/__pycache__/
+backend/*.pyc
+backend/venv/
