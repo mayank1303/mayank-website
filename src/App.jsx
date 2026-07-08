@@ -368,14 +368,21 @@ export default function App() {
     setSaved(true);
   };
 
+  const ROAST_FLAVORS = ["sarcastic", "deadpan", "over-the-top dramatic", "nerdy", "dry British wit", "chaotic energetic"];
+  const COMPLIMENT_FLAVORS = ["warm", "hype-man energetic", "poetic", "wholesome", "big-sisterly encouraging", "coach-like motivating"];
+  const ROAST_TOPICS = ["their coding habits", "their debugging skills", "their coffee addiction", "their 2am commits", "their open browser tabs", "their taste in tech stacks", "their code review comments", "their keyboard shortcut obsession", "their unread Slack messages", "their naming of variables"];
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
   const doRoast = async (kind) => {
     setRoastKind(kind); setRoastLoading(true); setRoastText("");
+    const flavor = pick(kind === "roast" ? ROAST_FLAVORS : COMPLIMENT_FLAVORS);
+    const topic = pick(ROAST_TOPICS);
     try {
       const txt = await askClaude(
         [{ role: "user", content: kind === "roast"
-          ? "Write a short, playful, PG roast (2-3 sentences max) of a random website visitor who is probably a tech person. Be witty, never mean about identity. Just the roast, nothing else."
-          : "Write a short, warm, genuinely uplifting compliment (2-3 sentences max) for a random website visitor, tech-flavored. Just the compliment, nothing else." }],
-        "You are a witty entertainment feature on a personal website."
+          ? `Write a short, playful, PG roast (2-3 sentences max) of a random website visitor who is probably a tech person, riffing on ${topic}. Tone: ${flavor}. Be witty, never mean about identity. Just the roast, nothing else.`
+          : `Write a short, genuinely uplifting compliment (2-3 sentences max) for a random website visitor, tech-flavored, riffing on ${topic}. Tone: ${flavor}. Just the compliment, nothing else.` }],
+        "You are a witty entertainment feature on a personal website. Vary your phrasing, structure, and opening line every time — never repeat a joke or sentence structure you've used before."
       );
       setRoastText(txt);
     } catch { setRoastText("The AI is napping — try again in a moment."); }
