@@ -7,7 +7,7 @@ const CONFIG = {
   STOCK_AGENT_URL: "https://YOUR-STOCK-AGENT-URL.vercel.app", // ← your live Stock Agent link
   SCHOLAR_URL: "https://scholar.google.com/citations?user=YOUR_ID", // ← your Scholar profile
   GITHUB_STOCK_REPO: "https://github.com/mayank1303", // ← exact repo link
-  API_BASE: "", // ← your FastAPI backend URL e.g. "https://mayank-site-api.onrender.com" (empty = AI features show a friendly message)
+  API_BASE: "https://mayank-site-api.onrender.com", // ← your FastAPI backend URL (empty = AI features show a friendly message)
   RESUME_PDF: "/Mayank_Kumar_Resume.pdf", // already included in /public
 };
 
