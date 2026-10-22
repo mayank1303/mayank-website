@@ -722,7 +722,7 @@ export default function App() {
 
       {/* Nav */}
       <nav className="no-print" style={{ position: "sticky", top: 0, zIndex: 10, background: "var(--nav-bg)", backdropFilter: "blur(8px)", borderBottom: `1px solid ${T.mist}` }}>
-        <div style={{ ...S.wrap, display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
+        <div style={{ ...S.wrap, display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: 60, paddingTop: 10, paddingBottom: 10, gap: 12 }}>
           <span style={{ fontWeight: 900, fontSize: 18 }}>MK<span style={{ color: accent }}>.</span></span>
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
             <button
