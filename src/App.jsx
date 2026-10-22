@@ -4,15 +4,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 //  CONFIG — edit these values, nothing else needs to change
 // ═══════════════════════════════════════════════════════════════
 const CONFIG = {
-  STOCK_AGENT_URL: "https://YOUR-STOCK-AGENT-URL.vercel.app", // ← your live Stock Agent link
-  SCHOLAR_URL: "https://scholar.google.com/citations?user=YOUR_ID", // ← your Scholar profile
-  GITHUB_STOCK_REPO: "https://github.com/mayank1303", // ← exact repo link
+  SCHOLAR_URL: "https://scholar.google.com/citations?user=geSEwYEAAAAJ", // ← your Scholar profile
+  GITHUB_STOCK_REPO: "https://github.com/mayank1303/stock-agent", // ← exact repo link
   API_BASE: "https://mayank-site-api.onrender.com", // ← your FastAPI backend URL (empty = AI features show a friendly message)
   RESUME_PDF: "/Mayank_Kumar_Resume.pdf", // already included in /public
 };
 
 // ═══════════════════════════════════════════════════════════════
-//  BLOG — add a new post here daily (newest FIRST)
+//  BLOG — add new posts here (newest FIRST)
 //  Copy one block, change date/kind/title/body. Redeploy. Done.
 // ═══════════════════════════════════════════════════════════════
 const KNOWLEDGE = [
@@ -26,7 +25,7 @@ const KNOWLEDGE = [
     date: "Jul 05, 2026",
     kind: "GUIDE",
     title: "How I deploy ML apps for free",
-    body: "My Stock Agent stack: FastAPI backend in Docker → deployed on Render free tier. React frontend → Vercel. Vector DB (ChromaDB) runs embedded, no server needed. Local embeddings via sentence-transformers = zero per-query cost. Total monthly bill: ₹0.",
+    body: "Stock Agent was deployed with a FastAPI backend in Docker on Render and a React frontend on Vercel. ChromaDB runs embedded, and local sentence-transformers embeddings avoid per-query embedding charges. The public demo is currently paused while I revisit hosting; model API usage is billed separately.",
   },
   {
     date: "Jul 04, 2026",
@@ -73,7 +72,7 @@ const PROJECTS = [
   {
     name: "Stock Agent",
     skills: ["Python", "LLM Agents", "RAG / MCP", "FastAPI"],
-    desc: "End-to-end agentic AI for real-time stock analysis: live NSE data, news retrieval, RAG over a 29,000+ chunk knowledge base, dual Claude + Ollama providers, multimodal chart analysis. Deployed to production.",
+    desc: "End-to-end agentic AI for real-time stock analysis: live NSE data, news retrieval, RAG over a 29,000+ chunk knowledge base, dual Claude + Ollama providers, multimodal chart analysis. Public demo currently paused; source code available.",
     link: CONFIG.GITHUB_STOCK_REPO,
     badge: "FEATURED",
     caseStudy: "stock-agent",
@@ -88,7 +87,7 @@ const PROJECTS = [
   {
     name: "Adversarial ML Research",
     skills: ["PyTorch", "Python"],
-    desc: "Attacked Split Neural Networks & Federated Learning with data poisoning + white-box attacks (CIFAR-10, ResNet18). Led to 4 published papers on FL security.",
+    desc: "Attacked Split Neural Networks & Federated Learning with data poisoning + white-box attacks (CIFAR-10, ResNet18). Research includes four earlier papers and a full paper accepted at ICTAI 2026 on label-flipping attacks against malware classifiers.",
     link: CONFIG.SCHOLAR_URL,
     badge: "RESEARCH",
   },
@@ -107,7 +106,7 @@ const PROJECTS = [
 const CASE_STUDIES = {
   "stock-agent": {
     name: "Stock Agent",
-    tagline: "An agentic AI system for real-time stock analysis — live market data, retrieval over a 29,000+ chunk knowledge base, and a dual-LLM backend that costs ₹0/month to run.",
+    tagline: "An agentic AI system for real-time stock analysis — live market data, retrieval over a 29,000+ chunk knowledge base, and a dual-LLM backend using Claude API or local Ollama models.",
     sections: [
       {
         h: "The problem",
@@ -123,18 +122,19 @@ const CASE_STUDIES = {
       },
       {
         h: "Deployment & cost",
-        b: "Backend runs in Docker on Render's free tier; frontend on Vercel; ChromaDB runs embedded alongside the backend, no separate database server. Total monthly infrastructure cost: ₹0 — the same free-tier stack now powers this personal site.",
+        b: "The app was deployed with a Docker backend on Render and a React frontend on Vercel. The public demo is currently paused: Yahoo Finance rate-limited requests from cloud-hosted IPs, even though the same data tools worked locally. The next hosting iteration needs a reliable market-data source. Local embeddings avoid per-query embedding fees; Claude API usage is billed separately.",
       },
       {
         h: "What it taught me",
-        b: "Evals matter from day one, not after the fact — measuring tool-routing accuracy before adding more tools kept the agent from becoming a pile of half-working capabilities. [Add: a specific failure mode you hit and fixed, and any latency/accuracy numbers you're comfortable sharing — those make this section land much harder than generalities.]",
+        b: "Tool routing and answer accuracy need separate checks. In testing, a local model called the right tools but misread a 0.23% return as 23%, so a correct tool call alone did not guarantee a correct answer. Deployment exposed another failure: market-data requests that worked on my laptop were rate-limited on shared cloud IPs. Both findings shaped the evaluation checklist and the decision to pause the public demo.",
       },
     ],
-    status: "Currently being redeployed to a new cloud setup — live demo link coming back soon.",
+    status: "Public demo currently paused while I revisit hosting and market-data reliability. Explore the source code on GitHub.",
   },
 };
 
 const PAPERS = [
+  ["ICTAI 2026 · Accepted", "Evaluating the Robustness of Modern Malware Classifiers Under Label-Flipping Data Poisoning Attacks", "https://drive.google.com/file/d/1ibSh-nSV5Y5Bf8ZpNhkbnBAl4hrMQMUY/view?usp=drivesdk", "Acceptance notification"],
   ["ICONIP 2022", "How does the Presence of Cognitive Biases in Phishing Emails Affect Human Decision-Making?", "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=geSEwYEAAAAJ&citation_for_view=geSEwYEAAAAJ:u5HHmVD_uO8C"],
   ["SINCOF 2023", "BATFL: Battling Backdoor Attacks in Federated Learning", "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=geSEwYEAAAAJ&citation_for_view=geSEwYEAAAAJ:d1gkVwhDpl0C"],
   ["SINCOF 2023", "RAFT: Evaluating Federated Learning Resilience Against Threats", "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=geSEwYEAAAAJ&citation_for_view=geSEwYEAAAAJ:u-x6o8ySG0sC"],
@@ -168,7 +168,7 @@ const MUSIC_BY_MOOD = {
   ],
 };
 
-const BIO_FOR_AI = `You are the AI assistant on Mayank Kumar's personal website. Answer questions about him concisely (2-4 sentences), in a friendly professional tone. Facts: Mayank Kumar is a Machine Learning Engineer (Scientist-B) at C-DOT Delhi since July 2023, with 3+ years experience in real-time low-latency ML systems: malware scoring with LightGBM on static PE/ELF analysis, UEBA anomaly detection (reduced false positives 90% using Isolation Forest), real-time pipelines with FastAPI/Docker/Kafka across 10,000+ endpoints. His flagship personal project is Stock Agent: an agentic AI system with live NSE market data, news retrieval, RAG over 29,000+ chunks (20+ PDFs/EPUBs, local embeddings, ChromaDB, OCR fallback), dual LLM providers (Claude API + Ollama) with live switching, MCP integration with Claude Desktop, multimodal chart analysis, FastAPI+React frontend deployed on Render/Vercel. Education: M.Tech CSE IIT Jammu (CGPA 8.77, 2021-23), B.Tech GEC Jhalawar. 4 published papers: phishing cognitive biases (ICONIP 2022), BATFL backdoor attacks in FL (SINCOF 2023), RAFT federated learning resilience (SINCOF 2023), Split NN robustness against data poisoning (IJCNN 2023). AI Research Intern at IIT Mandi 2022 (spoken language ID, X-vector, 96% accuracy). Skills: Python, R, C++, SQL, PyTorch, TensorFlow, LightGBM, scikit-learn, Claude API, Ollama, MCP, RAG, prompt engineering, FastAPI, Django, Flask, React, Docker, Kafka, PostgreSQL, OpenSearch, ChromaDB. Email: mayankrathor40@gmail.com. If asked something unrelated to Mayank, politely redirect to questions about him. Never make up facts not listed here.`;
+const BIO_FOR_AI = `You are the AI assistant on Mayank Kumar's personal website. Answer questions about him concisely (2-4 sentences), in a friendly professional tone. Facts: Mayank Kumar is a Machine Learning Engineer (Scientist-B) at C-DOT Delhi since July 2023, with 3+ years experience in real-time low-latency ML systems: malware scoring with LightGBM on static PE/ELF analysis, UEBA anomaly detection (reduced false positives 90% using Isolation Forest), real-time pipelines with FastAPI/Docker/Kafka across 10,000+ endpoints. His flagship personal project is Stock Agent: an agentic AI system with live NSE market data, news retrieval, RAG over 29,000+ chunks (20+ PDFs/EPUBs, local embeddings, ChromaDB, OCR fallback), dual LLM providers (Claude API + Ollama) with live switching, MCP integration with Claude Desktop, multimodal chart analysis, FastAPI+React app previously deployed on Render/Vercel; public demo currently paused while hosting and market-data reliability are revisited. Education: M.Tech CSE IIT Jammu (CGPA 8.77, 2021-23), B.Tech GEC Jhalawar. 4 earlier papers and 1 accepted full paper at ICTAI 2026: "Evaluating the Robustness of Modern Malware Classifiers Under Label-Flipping Data Poisoning Attacks" (Paper 913, accepted September 4, 2026; only the acceptance notification is public, not the manuscript). Earlier papers: phishing cognitive biases (ICONIP 2022), BATFL backdoor attacks in FL (SINCOF 2023), RAFT federated learning resilience (SINCOF 2023), Split NN robustness against data poisoning (IJCNN 2023). AI Research Intern at IIT Mandi 2022 (spoken language ID, X-vector, 96% accuracy). Skills: Python, R, C++, SQL, PyTorch, TensorFlow, LightGBM, scikit-learn, Claude API, Ollama, MCP, RAG, prompt engineering, FastAPI, Django, Flask, React, Docker, Kafka, PostgreSQL, OpenSearch, ChromaDB. Email: mayankrathor40@gmail.com. If asked something unrelated to Mayank, politely redirect to questions about him. Never make up facts not listed here.`;
 
 // ————— AI helper: calls YOUR backend proxy (keeps your API key secret) —————
 async function askClaude(messages, system) {
@@ -179,8 +179,11 @@ async function askClaude(messages, system) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages, system }),
+    signal: AbortSignal.timeout(70000),
   });
+  if (!res.ok) throw new Error("AI service unavailable");
   const data = await res.json();
+  if (typeof data.text !== "string" || !data.text.trim()) throw new Error("Empty AI response");
   return data.text;
 }
 
@@ -332,6 +335,7 @@ function CaseStudyPage({ slug }) {
         {cs.status && (
           <div style={{ background: T.card, border: `1px solid ${T.mist}`, borderRadius: 12, padding: 16, marginTop: 30, fontSize: 13, color: T.gray }}>
             🚧 {cs.status}
+            <p style={{ marginTop: 10 }}><a href={CONFIG.GITHUB_STOCK_REPO} target="_blank" rel="noreferrer" style={{ color: "inherit", fontWeight: 700 }}>View source on GitHub ↗</a></p>
           </div>
         )}
       </div>
@@ -392,11 +396,11 @@ function ResumePage() {
 
         <p style={{ ...mono, fontSize: 11, fontWeight: 700, color: accent, letterSpacing: ".05em", marginBottom: 10 }}>PUBLICATIONS</p>
         <div>
-          {PAPERS.map(([venue, title, url]) => (
+          {PAPERS.map(([venue, title, url, linkLabel]) => (
             <div key={title} style={{ display: "flex", gap: 12, padding: "8px 0", borderTop: `1px solid ${T.mist}`, alignItems: "baseline" }}>
               <span style={{ ...mono, fontSize: 10, color: accent, fontWeight: 600, minWidth: 88 }}>{venue}</span>
               {url ? (
-                <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, lineHeight: 1.5, color: "inherit" }}>{title}</a>
+                <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, lineHeight: 1.5, color: "inherit" }}>{title}{linkLabel && <span style={{ display: "block", fontSize: 11, color: accent, marginTop: 3 }}>{linkLabel} ↗</span>}</a>
               ) : (
                 <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>{title}</span>
               )}
@@ -422,11 +426,11 @@ export default function App() {
     try { localStorage.setItem("mk-theme", dark ? "dark" : "light"); } catch {}
   }, [dark]);
 
-  const initialRoute = useRef(resolveRoute(window.location.pathname)).current;
+  const [route, setRoute] = useState(() => resolveRoute(window.location.pathname));
   const [mode, setMode] = useState(
-    initialRoute.type === "mode" ? initialRoute.mode : initialRoute.type === "post" ? "learn" : "work"
+    route.type === "mode" ? route.mode : route.type === "post" ? "learn" : "work"
   );
-  const [viewingSlug, setViewingSlug] = useState(initialRoute.type === "post" ? initialRoute.slug : null);
+  const [viewingSlug, setViewingSlug] = useState(route.type === "post" ? route.slug : null);
   const [tab, setTab] = useState("stock");
   const [palette, setPalette] = useState(false);
   const [skill, setSkill] = useState(null);
@@ -434,17 +438,19 @@ export default function App() {
   const [openK, setOpenK] = useState(null);
   const accent = MODES[mode].accent;
 
-  const goToMode = (m) => { setMode(m); setViewingSlug(null); };
-
-  useEffect(() => {
-    if (viewingSlug) return; // don't clobber a /learn/<slug> URL right after initial load
-    const path = mode === "work" ? "/" : `/${mode}`;
+  const goToMode = (m) => {
+    setMode(m);
+    setViewingSlug(null);
+    setOpenK(null);
+    setRoute({ type: "mode", mode: m });
+    const path = m === "work" ? "/" : `/${m}`;
     if (window.location.pathname !== path) window.history.pushState({}, "", path);
-  }, [mode, viewingSlug]);
+  };
 
   useEffect(() => {
     const onPop = () => {
       const r = resolveRoute(window.location.pathname);
+      setRoute(r);
       if (r.type === "post") { setMode("learn"); setViewingSlug(r.slug); }
       else if (r.type === "mode") { setMode(r.mode); setViewingSlug(null); setOpenK(null); }
       else { setMode("work"); setViewingSlug(null); setOpenK(null); }
@@ -486,7 +492,8 @@ export default function App() {
   const [contactStatus, setContactStatus] = useState(""); // "" | "sending" | "sent" | "error"
 
   const submitContact = async () => {
-    if (!contact.name.trim() || !contact.email.trim() || !contact.message.trim()) {
+    if (contactStatus === "sending") return;
+    if (!contact.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email.trim()) || !contact.message.trim()) {
       setContactStatus("error");
       return;
     }
@@ -507,7 +514,10 @@ export default function App() {
 
   useEffect(() => {
     if (!CONFIG.API_BASE) return;
-    fetch(`${CONFIG.API_BASE}/api/blog`).then((r) => r.json()).then(setDynamicPosts).catch(() => {});
+    fetch(`${CONFIG.API_BASE}/api/blog`)
+      .then((r) => { if (!r.ok) throw new Error("Blog unavailable"); return r.json(); })
+      .then((posts) => { if (Array.isArray(posts)) setDynamicPosts(posts); })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -641,7 +651,7 @@ export default function App() {
     const next = [...msgs, { role: "user", content: q }];
     setMsgs(next); setInput(""); setChatLoading(true);
     try {
-      const reply = await askClaude(next.map(({ role, content }) => ({ role, content })), BIO_FOR_AI);
+      const reply = await askClaude(next.slice(1).map(({ role, content }) => ({ role, content })), BIO_FOR_AI);
       setMsgs([...next, { role: "assistant", content: reply }]);
     } catch {
       setMsgs([...next, { role: "assistant", content: "Connection hiccup — please try again." }]);
@@ -656,7 +666,7 @@ export default function App() {
     ["→ Publications", () => { goToMode("work"); setTimeout(() => document.getElementById("papers")?.scrollIntoView({ behavior: "smooth" }), 50); }],
     ["📚 Open the blog (Learn mode)", () => goToMode("learn")],
     ["⌘ Switch to Hire mode", () => goToMode("hire")],
-    ["📈 Stock Agent (coming soon)", () => { goToMode("play"); setTab("stock"); }],
+    ["📈 Stock Agent (source & status)", () => { goToMode("play"); setTab("stock"); }],
     ["🎮 Play Snake", () => { goToMode("play"); setTab("games"); setPlaying(true); setGameKey(k => k + 1); }],
     ["🔥 Roast me", () => { goToMode("play"); setTab("roast"); }],
   ];
@@ -671,9 +681,9 @@ export default function App() {
     wrap: { maxWidth: 960, margin: "0 auto", padding: "0 20px" },
   };
 
-  if (initialRoute.type === "resume") return <ResumePage />;
-  if (initialRoute.type === "case-study") return <CaseStudyPage slug={initialRoute.slug} />;
-  if (initialRoute.type === "notfound") return <NotFoundPage />;
+  if (route.type === "resume") return <ResumePage />;
+  if (route.type === "case-study") return <CaseStudyPage slug={route.slug} />;
+  if (route.type === "notfound") return <NotFoundPage />;
 
   return (
     <div style={{ background: T.paper, color: T.ink, minHeight: "100vh", fontFamily: "'Archivo', system-ui, sans-serif" }}>
@@ -723,7 +733,7 @@ export default function App() {
             >
               {dark ? "☀️" : "🌙"}
             </button>
-            <button style={S.btn(false)} onClick={() => setPalette(true)}>⌘K</button>
+            <button aria-label="Open quick actions" style={S.btn(false)} onClick={() => setPalette(true)}>⌘K</button>
             {Object.keys(MODES).map((m) => (
               <button key={m} onClick={() => goToMode(m)} style={S.btn(mode === m, MODES[m].accent)}>{MODES[m].label}</button>
             ))}
@@ -733,7 +743,7 @@ export default function App() {
 
       {/* Hero */}
       <header id="main" style={{ ...S.wrap, padding: mode === "hire" ? "44px 20px 36px" : "60px 20px 44px" }}>
-        <p style={S.label}>{mode === "hire" ? "Open to opportunities" : mode === "learn" ? "AI/ML Blog — one new topic daily" : mode === "play" ? "The Playground — have fun" : ME.title}</p>
+        <p style={S.label}>{mode === "hire" ? "Open to opportunities" : mode === "learn" ? "AI/ML notes & guides" : mode === "play" ? "The Playground — have fun" : ME.title}</p>
         <h1 style={{ fontSize: "clamp(36px,8vw,64px)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.05, margin: "12px 0 16px" }}>
           {ME.name}<span style={{ color: accent }}>.</span>
         </h1>
@@ -784,7 +794,7 @@ export default function App() {
                     style={{ position: "absolute", left: "-9999px", width: 1, height: 1 }}
                     aria-hidden="true"
                   />
-                  {contactStatus === "error" && <p style={{ fontSize: 12, color: "#D23B2E" }}>Please fill in all fields (or try again in a moment).</p>}
+                  {contactStatus === "error" && <p style={{ fontSize: 12, color: "#D23B2E" }}>Enter your name, a valid email, and a message. If sending fails, please use the Email me link above.</p>}
                   {contactStatus === "sent" ? (
                     <p style={{ fontSize: 13, fontWeight: 600, color: MODES.hire.accent }}>✓ Sent — thanks, I'll get back to you.</p>
                   ) : (
@@ -800,9 +810,9 @@ export default function App() {
           <>
             <p style={{ fontSize: 16.5, color: T.gray, maxWidth: 560, lineHeight: 1.6 }}>
               {mode === "learn"
-                ? "Everything I'm learning about AI/ML — one short, practical post a day. From production ML at C-DOT to agentic AI experiments."
+                ? "Practical notes on what I'm learning about AI/ML, from production ML at C-DOT to agentic AI experiments. Posts are dated so you can see when each was written."
                 : mode === "play"
-                ? "You found the fun side. Play Snake, get roasted by AI, pick music for your mood, or chat with my AI. Stock Agent demo is coming soon. Don't forget to pet the dog. 🐕"
+                ? "You found the fun side. Play Snake, get roasted by AI, pick music for your mood, or chat with my AI. The Stock Agent public demo is currently paused; its source code is available. Don't forget to pet the dog. 🐕"
                 : ME.tagline}
             </p>
             {mode !== "play" && (
@@ -836,8 +846,8 @@ export default function App() {
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14, marginTop: mode === "hire" ? 14 : 0 }}>
           {(mode === "hire" ? PROJECTS.slice(0, 2) : PROJECTS).map((p) => {
-            const hit = skill && p.skills.includes(skill);
-            const dim = skill && !hit;
+            const hit = mode === "work" && skill && p.skills.includes(skill);
+            const dim = mode === "work" && skill && !hit;
             return (
               <div key={p.name} className="lift" style={{ ...S.card, opacity: dim ? 0.35 : 1, border: hit ? `2px solid ${accent}` : `1px solid ${T.mist}`, transition: "opacity .25s,border .25s" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -882,11 +892,11 @@ export default function App() {
           <span style={{ ...mono, fontSize: 11, fontWeight: 600, color: T.gray }}>PUBLICATIONS ({PAPERS.length})</span>
           <a href={CONFIG.SCHOLAR_URL} target="_blank" rel="noreferrer" style={{ ...S.btn(false), marginLeft: "auto", textDecoration: "none" }}>Google Scholar ↗</a>
         </div>
-        {PAPERS.map(([venue, title, url]) => (
+        {PAPERS.map(([venue, title, url, linkLabel]) => (
           <div key={title} style={{ display: "flex", gap: 12, padding: "11px 4px", borderBottom: `1px solid ${T.mist}`, alignItems: "baseline" }}>
             <span style={{ ...mono, fontSize: 10, color: accent, fontWeight: 600, minWidth: 88 }}>{venue}</span>
             {url ? (
-              <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 13.5, lineHeight: 1.5, color: "inherit" }}>{title}</a>
+              <a href={url} target="_blank" rel="noreferrer" style={{ fontSize: 13.5, lineHeight: 1.5, color: "inherit" }}>{title}{linkLabel && <span style={{ display: "block", fontSize: 11, color: accent, marginTop: 3 }}>{linkLabel} ↗</span>}</a>
             ) : (
               <span style={{ fontSize: 13.5, lineHeight: 1.5 }}>{title}</span>
             )}
@@ -899,7 +909,7 @@ export default function App() {
       {mode === "learn" && (
         <section id="knowledge" style={{ ...S.wrap, paddingBottom: 48 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-            <p style={S.label}>Latest posts — new topic every day</p>
+            <p style={S.label}>Latest notes & guides</p>
             <button
               onClick={() => setShowAddPost((s) => !s)}
               title="Add a post (admin key required)"
@@ -961,7 +971,7 @@ export default function App() {
                     <div style={{ ...mono, fontSize: 9, color: T.gray, marginTop: 2 }}>{k.date}</div>
                   </div>
                   <span style={{ fontSize: 14.5, fontWeight: 600, flex: 1 }}>
-                    {i === 0 && <span style={{ ...mono, fontSize: 8.5, background: accent, color: "#fff", borderRadius: 999, padding: "2px 7px", marginRight: 8, verticalAlign: "middle" }}>NEW</span>}
+                    {i === 0 && <span style={{ ...mono, fontSize: 8.5, background: accent, color: "#fff", borderRadius: 999, padding: "2px 7px", marginRight: 8, verticalAlign: "middle" }}>LATEST</span>}
                     {k.title}
                   </span>
                   <span style={{ color: T.gray, transform: openK === i ? "rotate(90deg)" : "none", transition: "transform .2s" }}>→</span>
@@ -1003,7 +1013,7 @@ export default function App() {
                 <div style={{ fontSize: 40 }}>📈</div>
                 <p style={{ fontWeight: 800, fontSize: 18, margin: "10px 0 6px" }}>Stock Agent</p>
                 <p style={{ fontSize: 13.5, color: T.gray, maxWidth: 460, margin: "0 auto 8px", lineHeight: 1.6 }}>
-                  My flagship project, running in production: ask it about live NSE stocks, upload chart images for analysis, or query my 29,000-chunk knowledge base. Dual Claude + Ollama brains.
+                  My flagship project combines NSE stock tools, chart image analysis, and retrieval over a 29,000-chunk knowledge base with Claude and local Ollama models. The public demo is currently paused while I revisit hosting and market-data reliability.
                 </p>
                 <div style={{ display: "flex", gap: 6, justifyContent: "center", flexWrap: "wrap", margin: "12px 0 16px" }}>
                   {["Live NSE data", "RAG", "MCP", "Multimodal"].map((t) => (
@@ -1011,8 +1021,11 @@ export default function App() {
                   ))}
                 </div>
                 <span style={{ ...mono, fontSize: 12, padding: "10px 20px", borderRadius: 999, background: T.mist, color: T.gray, fontWeight: 700, display: "inline-block" }}>
-                  🚧 Coming soon — redeploying
+                  Public demo paused
                 </span>
+                <p style={{ marginTop: 16 }}>
+                  <a href={CONFIG.GITHUB_STOCK_REPO} target="_blank" rel="noreferrer" style={{ color: "inherit", fontWeight: 700 }}>View source on GitHub ↗</a>
+                </p>
               </div>
             )}
 

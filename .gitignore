@@ -10,3 +10,6 @@ backend/*.pyc
 backend/venv/
 .vercel
 .env*
+
+tmp/
+output/

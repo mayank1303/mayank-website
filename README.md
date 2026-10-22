@@ -1,6 +1,6 @@
 # Mayank Kumar — Personal Website
 
-Four-mode personal site: **Work** (portfolio) · **Play** (Stock Agent demo, Snake, AI roast, music, chatbot) · **Learn** (daily AI blog) · **Hire me** (recruiter fast-lane).
+Four-mode personal site: **Work** (portfolio) · **Play** (Stock Agent demo, Snake, AI roast, music, chatbot) · **Learn** (AI notes and guides) · **Hire me** (recruiter fast-lane).
 
 ## Structure
 
@@ -56,7 +56,7 @@ Note: API usage is paid per token — the chatbot/roast prompts are small, so
 casual traffic costs very little, but set a spend limit in the Anthropic
 console to be safe.
 
-## 5. Daily blog post (30 seconds)
+## 5. Add a blog post
 
 Open `src/App.jsx`, find the `KNOWLEDGE` array at the top, paste a new block
 at position #1:
